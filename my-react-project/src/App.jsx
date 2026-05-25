@@ -1,14 +1,4 @@
-// Data structure for each story:
-// {
-//   objectID: unique number - used as React key
-//   title: string - article title
-//   url: string - link to article
-//   author: string - who posted it
-//   points: number - popularity score
-//   num_comments: number - number of comments
-// }
-// objectID is used as the key because it is unique and stable
-// This structure is realistic because it matches the real Hacker News API
+// Global stories array - accessible by all components
 const stories = [
   {
     objectID: 1,
@@ -35,7 +25,7 @@ const stories = [
     num_comments: 54,
   },
   {
-    objectID: 4,                              
+    objectID: 4,
     title: "CSS Grid complete guide",
     url: "https://css-tricks.com",
     author: "chriscoyier",
@@ -43,13 +33,30 @@ const stories = [
     num_comments: 21,
   },
 ];
- 
-function App() {
-  console.log(stories[0]);
 
+// Header component - displays the app title
+function Header() {
   return (
     <div>
       <h1>Hacker News Stories</h1>
+    </div>
+  );
+}
+
+// Search component - responsible for the search UI only
+function Search() {
+  return (
+    <div>
+      <label htmlFor="search">Search: </label>
+      <input type="text" id="search" />
+    </div>
+  );
+}
+
+// List component - responsible for rendering the stories list
+function List() {
+  return (
+    <div>
       {stories.map((story) => (
         <div key={story.objectID}>
           <h3>
@@ -66,5 +73,22 @@ function App() {
   );
 }
 
+// App component - the main component that puts everything together
+function App() {
+  return (
+    <div>
+      <Header />
+      <Search />
+      <List />
+    </div>
+  );
+}
+
 export default App;
 
+// Reflection:
+// 1. App is now just a container that assembles all components together
+// 2. List is responsible only for rendering the stories
+// 3. Search is responsible only for the search input UI
+// 4. This structure is cleaner because each component has one job,
+//    making it easier to debug, reuse, and maintain
