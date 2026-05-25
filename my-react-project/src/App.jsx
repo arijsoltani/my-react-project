@@ -103,6 +103,7 @@ const App = () => {
 };
 
 export default App;
+export default App;
 
 // Reflection:
 // 1. Props are data passed from parent to child (read only).
