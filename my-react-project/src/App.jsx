@@ -1,54 +1,61 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-// Item component - renders a single story
-const Item = ({ story }) => (
+/* ================= ITEM ================= */
+const Item = ({ story, onRemove }) => (
   <div>
     <h3>
       <a href={story.url} target="_blank" rel="noreferrer">
         {story.title}
       </a>
     </h3>
+
     <p>Author: <span>{story.author}</span></p>
     <p>Points: <span>{story.points}</span></p>
     <p>Comments: <span>{story.num_comments}</span></p>
+
+    <button onClick={() => onRemove(story.objectID)}>
+      Delete
+    </button>
   </div>
 );
 
-// List component - receives stories as props and renders each Item
-const List = ({ stories }) => {
-  console.log("List re-rendered");
-  return (
-    <div>
-      {stories.map((story) => (
-        <Item key={story.objectID} story={story} />
-      ))}
-    </div>
-  );
-};
+/* ================= LIST ================= */
+const List = ({ stories, onRemove }) => (
+  <div>
+    {stories.map((story) => (
+      <Item
+        key={story.objectID}
+        story={story}
+        onRemove={onRemove}
+      />
+    ))}
+  </div>
+);
 
-// Search component - receives handler as prop, triggers it on input change
-const Search = ({ onSearch }) => {
-  console.log("Search re-rendered");
-  return (
-    <div>
-      <label htmlFor="search">Search: </label>
-      <input type="text" id="search" onChange={onSearch} />
-    </div>
-  );
-};
+/* ========== REUSABLE INPUT ========== */
+const InputWithLabel = ({ value, onInputChange, children }) => (
+  <div>
+    <label htmlFor="search">{children}</label>
 
-// Header component
+    <input
+      id="search"
+      type="text"
+      value={value}
+      onChange={onInputChange}
+    />
+  </div>
+);
+
+/* ================= HEADER ================= */
 const Header = () => (
   <div>
     <h1>Hacker News Stories</h1>
   </div>
 );
 
-// App component - owns all data and state
+/* ================= APP ================= */
 const App = () => {
-  console.log("App re-rendered");
-
-  const stories = [
+  const initialStories = [
     {
       objectID: 1,
       title: "React just got even better",
@@ -83,10 +90,26 @@ const App = () => {
     },
   ];
 
-  const [searchTerm, setSearchTerm] = useState("");
+  const [stories, setStories] = useState(initialStories);
+
+  const [searchTerm, setSearchTerm] = useState(
+    localStorage.getItem("search") || ""
+  );
+
+  useEffect(() => {
+    localStorage.setItem("search", searchTerm);
+  }, [searchTerm]);
 
   const handleSearch = (event) => {
     setSearchTerm(event.target.value);
+  };
+
+  // DELETE FUNCTION (LAB 8)
+  const handleRemoveStory = (id) => {
+    const newStories = stories.filter(
+      (story) => story.objectID !== id
+    );
+    setStories(newStories);
   };
 
   const filteredStories = stories.filter((story) =>
@@ -96,17 +119,20 @@ const App = () => {
   return (
     <div>
       <Header />
-      <Search onSearch={handleSearch} />
-      <List stories={filteredStories} />
+
+      <InputWithLabel
+        value={searchTerm}
+        onInputChange={handleSearch}
+      >
+        Search:
+      </InputWithLabel>
+
+      <List
+        stories={filteredStories}
+        onRemove={handleRemoveStory}
+      />
     </div>
   );
 };
 
 export default App;
-export default App;
-
-// Reflection:
-// 1. Props are data passed from parent to child (read only).
-//    State is data owned by a component that can change over time.
-// 2. We lift state up so that multiple components can share and react to the same data.
-// 3. Filtering logic lives in App because App owns both the data and the searchTerm state.
